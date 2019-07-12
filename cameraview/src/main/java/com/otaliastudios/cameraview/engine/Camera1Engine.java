@@ -377,6 +377,11 @@ public class Camera1Engine extends CameraEngine implements
         }
     }
 
+    @Override
+    public void onActualVideoRecordingStarted() {
+        mCallback.onActualVideoRecordingStarted();
+    }
+
     //endregion
 
     //region Parameters
