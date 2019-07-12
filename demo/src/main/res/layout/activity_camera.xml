@@ -17,6 +17,8 @@
         android:keepScreenOn="true"
         app:cameraPlaySounds="true"
         app:cameraGrid="off"
+        app:videoAudioSamplingRate="44100"
+        app:videoAudioEncodingBitrate="384000"
         app:cameraCropOutput="false"
         app:cameraFacing="back"
         app:cameraFlash="off"

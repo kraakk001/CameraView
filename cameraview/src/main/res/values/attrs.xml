@@ -114,6 +114,9 @@
 
         <attr name="cameraVideoMaxDuration" format="integer" />
 
+        <attr name="videoAudioSamplingRate" format="integer" />
+        <attr name="videoAudioEncodingBitrate" format="integer" />
+
         <attr name="cameraVideoCodec" format="enum">
             <enum name="deviceDefault" value="0" />
             <enum name="h263" value="1" />

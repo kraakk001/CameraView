@@ -205,9 +205,9 @@ task mergedCoverageReport(type: JacocoReport) {
                   '**/BuildConfig.*', '**/Manifest*.*']
     classDirectories = fileTree(dir: debugDir, excludes: filter);
 
-    reports.xml.enabled = true
-    reports.html.enabled = true
-    reports.xml.destination = "$reportsDirectory/mergedCoverageReport/report.xml"
+//    reports.xml.enabled = true
+//    reports.html.enabled = true
+//    reports.xml.destination = "$reportsDirectory/mergedCoverageReport/report.xml"
 }
 
 //endregion

@@ -32,6 +32,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     private Camera mCamera;
     private boolean mIsBound = false;
 
+    private AudioOptions mAudioOptions;
+
     private final int mPostFocusResetDelay = 3000;
     private Runnable mPostFocusResetRunnable = new Runnable() {
         @Override
@@ -278,9 +280,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         Exception runtime = new RuntimeException(CameraLogger.lastMessage);
         int reason;
         switch (error) {
-            case Camera.CAMERA_ERROR_EVICTED: reason = CameraException.REASON_DISCONNECTED; break;
-            case Camera.CAMERA_ERROR_UNKNOWN: reason = CameraException.REASON_UNKNOWN; break;
-            default: reason = CameraException.REASON_UNKNOWN;
+            case Camera.CAMERA_ERROR_EVICTED:
+                reason = CameraException.REASON_DISCONNECTED;
+                break;
+            case Camera.CAMERA_ERROR_UNKNOWN:
+                reason = CameraException.REASON_UNKNOWN;
+                break;
+            default:
+                reason = CameraException.REASON_UNKNOWN;
         }
         throw new CameraException(runtime, reason);
     }
@@ -692,6 +699,10 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
     @WorkerThread
     private void initMediaRecorder() {
+        // Initialize audio options if needed:
+        if (mAudioOptions == null) {
+            mAudioOptions = new AudioOptions();
+        }
         mMediaRecorder = new MediaRecorder();
         mCamera.unlock();
         mMediaRecorder.setCamera(mCamera);
@@ -712,10 +723,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         }
         mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
         if (mAudio == Audio.ON) {
+            final int samplingRate = mAudioOptions.mSampleRate == null ? profile.audioSampleRate : mAudioOptions.mSampleRate;
+            final int encodingRate = mAudioOptions.mEncodingBitRate == null ? profile.audioBitRate : mAudioOptions.mEncodingBitRate;
             mMediaRecorder.setAudioChannels(profile.audioChannels);
-            mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+            mMediaRecorder.setAudioSamplingRate(samplingRate);
             mMediaRecorder.setAudioEncoder(profile.audioCodec);
-            mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+            mMediaRecorder.setAudioEncodingBitRate(encodingRate);
+            Log.i(TAG, "Initialized Audio of the Media Recorder samplingRate: " + samplingRate + " encodingRate: "
+                    + encodingRate + " audioCodec: " + profile.audioCodec + " channels: " + profile.audioChannels);
         }
 
         if (mLocation != null) {
@@ -918,7 +933,30 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 
+    public Camera1 setOptions(@NonNull final AudioOptions audioOptions) {
+        mAudioOptions = audioOptions;
+        return this;
+    }
+
     // -----------------
     // Additional helper info
+
+    public static class AudioOptions {
+        private Integer mSampleRate;
+        private Integer mEncodingBitRate;
+
+        public AudioOptions() {
+        }
+
+        public AudioOptions sampleRate(@Nullable final Integer sampleRate) {
+            mSampleRate = sampleRate;
+            return this;
+        }
+
+        public AudioOptions encodingBitRate(@Nullable final Integer encodingBitRate) {
+            mEncodingBitRate = encodingBitRate;
+            return this;
+        }
+    }
 }
 
