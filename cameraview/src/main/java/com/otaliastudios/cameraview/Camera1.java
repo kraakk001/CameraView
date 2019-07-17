@@ -32,7 +32,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     private Camera mCamera;
     private boolean mIsBound = false;
 
-    private AudioOptions mAudioOptions;
+    private RecordOptions mRecordOptions;
 
     private final int mPostFocusResetDelay = 3000;
     private Runnable mPostFocusResetRunnable = new Runnable() {
@@ -700,8 +700,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     @WorkerThread
     private void initMediaRecorder() {
         // Initialize audio options if needed:
-        if (mAudioOptions == null) {
-            mAudioOptions = new AudioOptions();
+        if (mRecordOptions == null) {
+            mRecordOptions = new RecordOptions();
         }
         mMediaRecorder = new MediaRecorder();
         mCamera.unlock();
@@ -714,17 +714,21 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         }
         CamcorderProfile profile = getCamcorderProfile();
         mMediaRecorder.setOutputFormat(profile.fileFormat);
-        mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+        final int frameRate = mRecordOptions.mVideoFrameRate == null ? profile.videoFrameRate : mRecordOptions.mVideoFrameRate;
+        Log.i(TAG, "Assigning the video frame rate: " + frameRate + " fps");
+        mMediaRecorder.setVideoFrameRate(frameRate);
         mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
             mMediaRecorder.setVideoEncoder(mMapper.map(mVideoCodec));
         }
-        mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
+        final int videoEncodingBitRate = mRecordOptions.mVideoEncodingBitRate == null ? profile.videoBitRate : mRecordOptions.mVideoEncodingBitRate;
+        Log.i(TAG, "Assigning the video encoding bitrate to: " + videoEncodingBitRate);
+        mMediaRecorder.setVideoEncodingBitRate(videoEncodingBitRate);
         if (mAudio == Audio.ON) {
-            final int samplingRate = mAudioOptions.mSampleRate == null ? profile.audioSampleRate : mAudioOptions.mSampleRate;
-            final int encodingRate = mAudioOptions.mEncodingBitRate == null ? profile.audioBitRate : mAudioOptions.mEncodingBitRate;
+            final int samplingRate = mRecordOptions.mAudioSampleRate == null ? profile.audioSampleRate : mRecordOptions.mAudioSampleRate;
+            final int encodingRate = mRecordOptions.mAudioEncodingBitRate == null ? profile.audioBitRate : mRecordOptions.mAudioEncodingBitRate;
             mMediaRecorder.setAudioChannels(profile.audioChannels);
             mMediaRecorder.setAudioSamplingRate(samplingRate);
             mMediaRecorder.setAudioEncoder(profile.audioCodec);
@@ -933,28 +937,40 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 
-    public Camera1 setOptions(@NonNull final AudioOptions audioOptions) {
-        mAudioOptions = audioOptions;
+    public Camera1 setOptions(@NonNull final RecordOptions recordOptions) {
+        mRecordOptions = recordOptions;
         return this;
     }
 
     // -----------------
     // Additional helper info
 
-    public static class AudioOptions {
-        private Integer mSampleRate;
-        private Integer mEncodingBitRate;
+    public static class RecordOptions {
+        private Integer mAudioSampleRate;
+        private Integer mAudioEncodingBitRate;
+        private Integer mVideoEncodingBitRate;
+        private Integer mVideoFrameRate;
 
-        public AudioOptions() {
+        public RecordOptions() {
         }
 
-        public AudioOptions sampleRate(@Nullable final Integer sampleRate) {
-            mSampleRate = sampleRate;
+        public RecordOptions audioSampleRate(@Nullable final Integer sampleRate) {
+            mAudioSampleRate = sampleRate;
             return this;
         }
 
-        public AudioOptions encodingBitRate(@Nullable final Integer encodingBitRate) {
-            mEncodingBitRate = encodingBitRate;
+        public RecordOptions audioEncodingBitRate(@Nullable final Integer encodingBitRate) {
+            mAudioEncodingBitRate = encodingBitRate;
+            return this;
+        }
+
+        public RecordOptions videoEncodingBitRate(@Nullable final Integer videoEncodingBitRate) {
+            mVideoEncodingBitRate = videoEncodingBitRate;
+            return this;
+        }
+
+        public RecordOptions videoFrameRate(final Integer videoFrameRate) {
+            mVideoFrameRate = videoFrameRate;
             return this;
         }
     }

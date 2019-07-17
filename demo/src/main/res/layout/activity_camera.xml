@@ -19,6 +19,8 @@
         app:cameraGrid="off"
         app:videoAudioSamplingRate="44100"
         app:videoAudioEncodingBitrate="384000"
+        app:videoFrameRate="30"
+        app:videoEncodingBitrate="6291456"
         app:cameraCropOutput="false"
         app:cameraFacing="back"
         app:cameraFlash="off"

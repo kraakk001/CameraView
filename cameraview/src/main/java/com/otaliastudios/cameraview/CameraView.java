@@ -117,6 +117,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
         final int audioSamplingRate = a.getInteger(R.styleable.CameraView_videoAudioSamplingRate, -1);
         final int audioEncodingRate = a.getInteger(R.styleable.CameraView_videoAudioEncodingBitrate, -1);
+        final int videoFrameRate = a.getInteger(R.styleable.CameraView_videoFrameRate, -1);
+        final int videoEncodingRate = a.getInteger(R.styleable.CameraView_videoEncodingBitrate, -1);
 
         // Size selectors
         List<SizeSelector> constraints = new ArrayList<>(3);
@@ -163,7 +165,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mCameraCallbacks = new Callbacks();
         mCameraController = instantiateCameraController(mCameraCallbacks,
                 audioSamplingRate == -1 ? null : audioSamplingRate,
-                audioEncodingRate == -1 ? null : audioEncodingRate);
+                audioEncodingRate == -1 ? null : audioEncodingRate,
+                videoEncodingRate == -1 ? null : videoEncodingRate,
+                videoFrameRate == -1 ? null : videoFrameRate);
         mUiHandler = new Handler(Looper.getMainLooper());
         mWorkerHandler = WorkerHandler.get("CameraViewWorker");
         mFrameProcessorsHandler = WorkerHandler.get("FrameProcessorsWorker");
@@ -211,11 +215,15 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     protected CameraController instantiateCameraController(CameraCallbacks callbacks,
                                                            final Integer audioSamplingRate,
-                                                           final Integer audioEncodingBitRate) {
+                                                           final Integer audioEncodingBitRate,
+                                                           final Integer videoEncodingBitRate,
+                                                           final Integer videoFrameRate) {
         return new Camera1(callbacks)
-                .setOptions(new Camera1.AudioOptions()
-                        .encodingBitRate(audioEncodingBitRate)
-                        .sampleRate(audioSamplingRate));
+                .setOptions(new Camera1.RecordOptions()
+                        .audioEncodingBitRate(audioEncodingBitRate)
+                        .audioSampleRate(audioSamplingRate)
+                        .videoEncodingBitRate(videoEncodingBitRate)
+                        .videoFrameRate(videoFrameRate));
     }
 
     protected CameraPreview instantiatePreview(Context context, ViewGroup container) {
