@@ -260,6 +260,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         super.onDetachedFromWindow();
     }
 
+    public void setOrientationHint(final Integer degrees){
+        mCameraController.setOrientationHint(degrees);
+    }
+
     //endregion
 
     //region Measuring behavior

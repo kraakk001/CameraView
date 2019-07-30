@@ -63,6 +63,7 @@ abstract class CameraController implements
     protected int mPreviewFormat;
 
     protected int mSensorOffset;
+
     private int mDisplayOffset;
     private int mDeviceOrientation;
 
@@ -70,6 +71,8 @@ abstract class CameraController implements
     protected boolean mIsCapturingVideo = false;
 
     protected int mState = STATE_STOPPED;
+
+    protected Integer mOrientationHintDegrees;
 
     // Used for testing.
     Task<Void> mZoomTask = new Task<>();
@@ -93,6 +96,11 @@ abstract class CameraController implements
     void setPreview(CameraPreview cameraPreview) {
         mPreview = cameraPreview;
         mPreview.setSurfaceCallback(this);
+    }
+
+
+    public void setOrientationHint(final Integer orientationHintDegrees){
+        mOrientationHintDegrees = orientationHintDegrees;
     }
 
     //region Error handling
