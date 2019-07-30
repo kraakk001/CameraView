@@ -56,6 +56,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
+        // Portrait:
+        camera.setOrientationHint(0);
+
         findViewById(R.id.edit).setOnClickListener(this);
         findViewById(R.id.capturePhoto).setOnClickListener(this);
         findViewById(R.id.captureVideo).setOnClickListener(this);

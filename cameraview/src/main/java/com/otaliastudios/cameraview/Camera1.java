@@ -745,7 +745,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         }
 
         mMediaRecorder.setOutputFile(mVideoFile.getAbsolutePath());
-        mMediaRecorder.setOrientationHint(mOrientationHintDegrees == null ? computeSensorToOutputOffset() : computeSensorToOutputOffset(mOrientationHintDegrees));
+        mMediaRecorder.setOrientationHint(mOrientationLock == null ?
+                computeSensorToOutputOffset() : computeSensorToOutputOffset(mOrientationLock));
 
         mMediaRecorder.setMaxFileSize(mVideoMaxSize);
         mMediaRecorder.setMaxDuration(mVideoMaxDuration);
@@ -764,11 +765,21 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         // Not needed. mMediaRecorder.setPreviewDisplay(mPreview.getSurface());
     }
 
-    protected final int computeSensorToOutputOffset(final int orientationDegrees){
-        if (mFacing == Facing.FRONT) {
-            return (mSensorOffset - orientationDegrees + 360) % 360;
-        } else {
-            return (mSensorOffset + orientationDegrees) % 360;
+    protected final int computeSensorToOutputOffset(@CameraView.OrientationLock final int orientationLock) {
+        final boolean isFrontCamera = mFacing == Facing.FRONT;
+        switch (orientationLock) {
+            case CameraView.OrientationLock.LANDSCAPE_LEFT:
+                return 0;
+            case CameraView.OrientationLock.LANDSCAPE_RIGHT:
+                return 180;
+            case CameraView.OrientationLock.PORTRAIT_UPSIDE_DOWN:
+                return isFrontCamera ? 90 : 270;
+            case CameraView.OrientationLock.PORTRAIT:
+                return isFrontCamera ? 270 : 90;
+            case CameraView.OrientationLock.NO_LOCK:
+                // Intentional break trough:
+            default:
+                return computeSensorToOutputOffset();
         }
     }
 

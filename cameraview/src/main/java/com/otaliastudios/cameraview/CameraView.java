@@ -21,6 +21,7 @@ import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -30,6 +31,8 @@ import android.widget.FrameLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +82,17 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     private Handler mUiHandler;
     private WorkerHandler mWorkerHandler;
     private WorkerHandler mFrameProcessorsHandler;
+
+    @IntDef({OrientationLock.NO_LOCK, OrientationLock.PORTRAIT, OrientationLock.PORTRAIT_UPSIDE_DOWN,
+            OrientationLock.LANDSCAPE_LEFT, OrientationLock.LANDSCAPE_RIGHT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface OrientationLock {
+        int NO_LOCK = -1;
+        int PORTRAIT = 0;
+        int PORTRAIT_UPSIDE_DOWN = 2;
+        int LANDSCAPE_LEFT = 3;
+        int LANDSCAPE_RIGHT = 4;
+    }
 
     public CameraView(@NonNull Context context) {
         super(context, null);
@@ -260,8 +274,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         super.onDetachedFromWindow();
     }
 
-    public void setOrientationHint(final Integer degrees){
-        mCameraController.setOrientationHint(degrees);
+    public void setOrientationLock(@OrientationLock final int orientationLock) {
+        mCameraController.setOrientationLock(orientationLock);
     }
 
     //endregion

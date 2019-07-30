@@ -72,7 +72,7 @@ abstract class CameraController implements
 
     protected int mState = STATE_STOPPED;
 
-    protected Integer mOrientationHintDegrees;
+    protected Integer mOrientationLock;
 
     // Used for testing.
     Task<Void> mZoomTask = new Task<>();
@@ -99,8 +99,8 @@ abstract class CameraController implements
     }
 
 
-    public void setOrientationHint(final Integer orientationHintDegrees){
-        mOrientationHintDegrees = orientationHintDegrees;
+    public void setOrientationLock(@CameraView.OrientationLock final int orientationLock) {
+        mOrientationLock = orientationLock;
     }
 
     //region Error handling
