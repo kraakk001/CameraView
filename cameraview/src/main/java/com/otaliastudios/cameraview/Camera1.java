@@ -745,7 +745,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         }
 
         mMediaRecorder.setOutputFile(mVideoFile.getAbsolutePath());
-        mMediaRecorder.setOrientationHint(mOrientationHintDegrees == null ? computeSensorToOutputOffset() : mOrientationHintDegrees);
+        mMediaRecorder.setOrientationHint(mOrientationHintDegrees == null ? computeSensorToOutputOffset() : computeSensorToOutputOffset(mOrientationHintDegrees));
 
         mMediaRecorder.setMaxFileSize(mVideoMaxSize);
         mMediaRecorder.setMaxDuration(mVideoMaxDuration);
@@ -762,6 +762,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             }
         });
         // Not needed. mMediaRecorder.setPreviewDisplay(mPreview.getSurface());
+    }
+
+    protected final int computeSensorToOutputOffset(final int orientationDegrees){
+        if (mFacing == Facing.FRONT) {
+            return (mSensorOffset - orientationDegrees + 360) % 360;
+        } else {
+            return (mSensorOffset + orientationDegrees) % 360;
+        }
     }
 
     // -----------------
