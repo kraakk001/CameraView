@@ -776,10 +776,12 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             case CameraView.OrientationLock.LANDSCAPE_RIGHT:
                 // portrait device orientation while locked in LANDSCAPE_RIGHT with front camera:
                 return isPortraitDeviceOrientation && isFrontCamera ? 0 : 180;
-            case CameraView.OrientationLock.PORTRAIT_UPSIDE_DOWN:
-                return isFrontCamera ? 90 : 270;
             case CameraView.OrientationLock.PORTRAIT:
-                return isFrontCamera ? 270 : 90;
+                // portrait device orientation while locked in PORTRAIT with front camera:
+                return isFrontCamera && isPortraitDeviceOrientation? 270 : 90;
+            case CameraView.OrientationLock.PORTRAIT_UPSIDE_DOWN:
+                // portrait device orientation while locked in PORTRAIT with front camera:
+                return isFrontCamera && isPortraitDeviceOrientation? 90 : 270;
             case CameraView.OrientationLock.NO_LOCK:
                 // Intentional break trough:
             default:
