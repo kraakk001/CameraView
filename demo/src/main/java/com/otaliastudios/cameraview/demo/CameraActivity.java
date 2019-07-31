@@ -57,7 +57,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         });
 
         // Portrait:
-        camera.setOrientationHint(0);
+        camera.setOrientationLock(CameraView.OrientationLock.LANDSCAPE_RIGHT);
 
         findViewById(R.id.edit).setOnClickListener(this);
         findViewById(R.id.capturePhoto).setOnClickListener(this);
@@ -166,8 +166,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
         if (mCapturingPicture || mCapturingVideo) return;
         mCapturingVideo = true;
-        message("Recording for 8 seconds...", true);
-        camera.startCapturingVideo(null, 8000);
+        message("Recording for 3 seconds...", true);
+        camera.startCapturingVideo(null, 3000);
     }
 
     private void toggleCamera() {

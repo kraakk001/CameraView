@@ -767,11 +767,15 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
     protected final int computeSensorToOutputOffset(@CameraView.OrientationLock final int orientationLock) {
         final boolean isFrontCamera = mFacing == Facing.FRONT;
+        // Check if device is held physically in portrait
+        final boolean isPortraitDeviceOrientation = mDeviceOrientation == 0 || mDeviceOrientation == 180;
         switch (orientationLock) {
             case CameraView.OrientationLock.LANDSCAPE_LEFT:
-                return 0;
+                // portrait device orientation while locked in LANDSCAPE_LEFT with front camera:
+                return isPortraitDeviceOrientation && isFrontCamera ? 180 : 0;
             case CameraView.OrientationLock.LANDSCAPE_RIGHT:
-                return 180;
+                // portrait device orientation while locked in LANDSCAPE_RIGHT with front camera:
+                return isPortraitDeviceOrientation && isFrontCamera ? 0 : 180;
             case CameraView.OrientationLock.PORTRAIT_UPSIDE_DOWN:
                 return isFrontCamera ? 90 : 270;
             case CameraView.OrientationLock.PORTRAIT:

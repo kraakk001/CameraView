@@ -65,7 +65,7 @@ abstract class CameraController implements
     protected int mSensorOffset;
 
     private int mDisplayOffset;
-    private int mDeviceOrientation;
+    protected int mDeviceOrientation;
 
     protected boolean mIsCapturingImage = false;
     protected boolean mIsCapturingVideo = false;
