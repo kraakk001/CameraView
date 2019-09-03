@@ -654,7 +654,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
                         mMediaRecorder.start();
                     } else {
                         // Prepare:
-                        prepareVideoInternal(videoFile, new PreparedListener() {
+                        prepareVideoInternal(videoFile, new CameraView.PreparedListener() {
                             @Override
                             public void onPrepared(final MediaRecorder mediaRecorder) {
                                 mediaRecorder.start();
@@ -668,7 +668,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 
-    public void prepareVideoRecording(@NonNull final File videoFile, @Nullable final PreparedListener preparedListener) {
+    public void prepareVideoRecording(@NonNull final File videoFile, @Nullable final CameraView.PreparedListener preparedListener) {
         schedule(mStartVideoTask, true, new Runnable() {
             @Override
             public void run() {
@@ -677,7 +677,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 
-    private void prepareVideoInternal(@NonNull final File videoFile, @Nullable final PreparedListener preparedListener) {
+    private void prepareVideoInternal(@NonNull final File videoFile, @Nullable final CameraView.PreparedListener preparedListener) {
         if (mIsPreparing) return;
         if (mSessionType == SessionType.VIDEO) {
             mVideoFile = videoFile;
@@ -697,11 +697,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         } else {
             throw new IllegalStateException("Can't record video while session type is picture");
         }
-    }
-
-    /** Prepared listener */
-    public interface PreparedListener {
-        void onPrepared(final MediaRecorder mediaRecorder);
     }
 
     @Override

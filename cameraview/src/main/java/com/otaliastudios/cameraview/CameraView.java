@@ -18,6 +18,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.location.Location;
 import android.media.MediaActionSound;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -1319,8 +1320,13 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * @param file             a file where the video will be saved
      * @param preparedListener listener to notify once preparing is successfull
      */
-    public void prepareVideoCapture(File file, Camera1.PreparedListener preparedListener) {
+    public void prepareVideoCapture(File file, PreparedListener preparedListener) {
         mCameraController.prepareVideoRecording(file, preparedListener);
+    }
+
+    /** Prepared listener */
+    public interface PreparedListener {
+        void onPrepared(final MediaRecorder mediaRecorder);
     }
 
 
