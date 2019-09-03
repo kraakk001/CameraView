@@ -65,7 +65,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /* for tests */ CameraCallbacks mCameraCallbacks;
     private CameraPreview mCameraPreview;
     private OrientationHelper mOrientationHelper;
-    private CameraController mCameraController;
+    private Camera1 mCameraController;
     private MediaActionSound mSound;
     /* for tests */ List<CameraListener> mListeners = new CopyOnWriteArrayList<>();
     /* for tests */ List<FrameProcessor> mFrameProcessors = new CopyOnWriteArrayList<>();
@@ -227,11 +227,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         }
     }
 
-    protected CameraController instantiateCameraController(CameraCallbacks callbacks,
-                                                           final Integer audioSamplingRate,
-                                                           final Integer audioEncodingBitRate,
-                                                           final Integer videoEncodingBitRate,
-                                                           final Integer videoFrameRate) {
+    protected Camera1 instantiateCameraController(CameraCallbacks callbacks,
+                                                  final Integer audioSamplingRate,
+                                                  final Integer audioEncodingBitRate,
+                                                  final Integer videoEncodingBitRate,
+                                                  final Integer videoFrameRate) {
         return new Camera1(callbacks)
                 .setOptions(new Camera1.RecordOptions()
                         .audioEncodingBitRate(audioEncodingBitRate)
@@ -1310,6 +1310,17 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                 if (!mKeepScreenOn) setKeepScreenOn(true);
             }
         });
+    }
+
+    /**
+     * Prepares the recording for a video. Video will be written to the given file,
+     * so callers should ensure they have appropriate permissions to write to the file.
+     *
+     * @param file             a file where the video will be saved
+     * @param preparedListener listener to notify once preparing is successfull
+     */
+    public void prepareVideoCapture(File file, Camera1.PreparedListener preparedListener) {
+        mCameraController.prepareVideoRecording(file, preparedListener);
     }
 
 

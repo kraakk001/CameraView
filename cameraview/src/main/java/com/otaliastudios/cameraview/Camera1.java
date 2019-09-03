@@ -31,6 +31,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
     private Camera mCamera;
     private boolean mIsBound = false;
+    private boolean mIsPreparing;
 
     private RecordOptions mRecordOptions;
 
@@ -236,6 +237,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         mIsBound = false;
         mIsCapturingImage = false;
         mIsCapturingVideo = false;
+        mIsPreparing = false;
         LOG.w("onStop:", "Clean up.", "Returning.");
 
         // We were saving a reference to the exception here and throwing to the user.
@@ -644,23 +646,62 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             public void run() {
                 if (mIsCapturingVideo) return;
                 if (mSessionType == SessionType.VIDEO) {
-                    mVideoFile = videoFile;
+                    // Prevent duplicate calls:
                     mIsCapturingVideo = true;
-                    initMediaRecorder();
-                    try {
-                        mMediaRecorder.prepare();
+                    // Check if prepared already:
+                    if(mIsPreparing){
+                        // Manually prepared so is responsible for ensuring that start is not triggered before preparing finished
                         mMediaRecorder.start();
-                    } catch (Exception e) {
-                        LOG.e("Error while starting MediaRecorder. Swallowing.", e);
-                        mVideoFile = null;
-                        mCamera.lock();
-                        endVideoImmediately();
+                    } else {
+                        // Prepare:
+                        prepareVideoInternal(videoFile, new PreparedListener() {
+                            @Override
+                            public void onPrepared(final MediaRecorder mediaRecorder) {
+                                mediaRecorder.start();
+                            }
+                        });
                     }
                 } else {
                     throw new IllegalStateException("Can't record video while session type is picture");
                 }
             }
         });
+    }
+
+    public void prepareVideoRecording(@NonNull final File videoFile, @Nullable final PreparedListener preparedListener) {
+        schedule(mStartVideoTask, true, new Runnable() {
+            @Override
+            public void run() {
+                prepareVideoInternal(videoFile, preparedListener);
+            }
+        });
+    }
+
+    private void prepareVideoInternal(@NonNull final File videoFile, @Nullable final PreparedListener preparedListener) {
+        if (mIsPreparing) return;
+        if (mSessionType == SessionType.VIDEO) {
+            mVideoFile = videoFile;
+            mIsPreparing = true;
+            initMediaRecorder();
+            try {
+                mMediaRecorder.prepare();
+                if(preparedListener != null){
+                    preparedListener.onPrepared(mMediaRecorder);
+                }
+            } catch (Exception e) {
+                LOG.e("Error while starting MediaRecorder. Swallowing.", e);
+                mVideoFile = null;
+                mCamera.lock();
+                endVideoImmediately();
+            }
+        } else {
+            throw new IllegalStateException("Can't record video while session type is picture");
+        }
+    }
+
+    /** Prepared listener */
+    public interface PreparedListener {
+        void onPrepared(final MediaRecorder mediaRecorder);
     }
 
     @Override
@@ -677,6 +718,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     private void endVideoImmediately() {
         LOG.i("endVideoImmediately:", "is capturing:", mIsCapturingVideo);
         mIsCapturingVideo = false;
+        mIsPreparing = false;
         if (mMediaRecorder != null) {
             try {
                 mMediaRecorder.stop();
@@ -778,10 +820,10 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
                 return isPortraitDeviceOrientation && isFrontCamera ? 0 : 180;
             case CameraView.OrientationLock.PORTRAIT:
                 // portrait device orientation while locked in PORTRAIT with front camera:
-                return isFrontCamera && isPortraitDeviceOrientation? 270 : 90;
+                return isFrontCamera && isPortraitDeviceOrientation ? 270 : 90;
             case CameraView.OrientationLock.PORTRAIT_UPSIDE_DOWN:
                 // portrait device orientation while locked in PORTRAIT with front camera:
-                return isFrontCamera && isPortraitDeviceOrientation? 90 : 270;
+                return isFrontCamera && isPortraitDeviceOrientation ? 90 : 270;
             case CameraView.OrientationLock.NO_LOCK:
                 // Intentional break trough:
             default:
