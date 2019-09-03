@@ -2,11 +2,13 @@ package com.otaliastudios.cameraview.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -58,6 +60,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         // Portrait:
         camera.setOrientationLock(CameraView.OrientationLock.PORTRAIT);
+        camera.setSessionType(SessionType.VIDEO);
 
         findViewById(R.id.edit).setOnClickListener(this);
         findViewById(R.id.capturePhoto).setOnClickListener(this);
@@ -93,6 +96,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             ControlView view = (ControlView) group.getChildAt(i);
             view.onCameraOpened(camera);
         }
+        Log.i("KOEN", "onCameraOpened");
+        camera.prepareVideoCapture(new File(CameraActivity.this.getFilesDir(), "video.mp4"), new CameraView.PreparedListener() {
+            @Override
+            public void onPrepared(final MediaRecorder mediaRecorder) {
+                Log.i("KOEN", "onPrepared");
+            }
+        });
     }
 
     private void onPicture(byte[] jpeg) {
@@ -167,7 +177,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (mCapturingPicture || mCapturingVideo) return;
         mCapturingVideo = true;
         message("Recording for 3 seconds...", true);
-        camera.startCapturingVideo(null, 3000);
+        camera.startCapturingVideo(new File(getFilesDir(), "video.mp4"), 3000);
     }
 
     private void toggleCamera() {
