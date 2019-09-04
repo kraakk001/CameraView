@@ -641,31 +641,31 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
     @Override
     void startVideo(@NonNull final File videoFile) {
-        schedule(mStartVideoTask, true, new Runnable() {
-            @Override
-            public void run() {
-                if (mIsCapturingVideo) return;
-                if (mSessionType == SessionType.VIDEO) {
-                    // Prevent duplicate calls:
-                    mIsCapturingVideo = true;
-                    // Check if prepared already:
-                    if(mIsPreparing){
-                        // Manually prepared so is responsible for ensuring that start is not triggered before preparing finished
-                        mMediaRecorder.start();
-                    } else {
-                        // Prepare:
-                        prepareVideoInternal(videoFile, new CameraView.PreparedListener() {
-                            @Override
-                            public void onPrepared(final MediaRecorder mediaRecorder) {
-                                mediaRecorder.start();
-                            }
-                        });
-                    }
-                } else {
-                    throw new IllegalStateException("Can't record video while session type is picture");
+        if (mIsCapturingVideo) return;
+        if (mSessionType == SessionType.VIDEO) {
+            // Prevent duplicate calls:
+            mIsCapturingVideo = true;
+        } else {
+            throw new IllegalStateException("Can't record video while session type is picture");
+        }
+        // Check if prepared already:
+        if (mIsPreparing) {
+            // Manually prepared so is responsible for ensuring that start is not triggered before preparing finished
+            mMediaRecorder.start();
+        } else {
+            schedule(mStartVideoTask, true, new Runnable() {
+                @Override
+                public void run() {
+                    // Prepare:
+                    prepareVideoInternal(videoFile, new CameraView.PreparedListener() {
+                        @Override
+                        public void onPrepared(final MediaRecorder mediaRecorder) {
+                            mediaRecorder.start();
+                        }
+                    });
                 }
-            }
-        });
+            });
+        }
     }
 
     public void prepareVideoRecording(@NonNull final File videoFile, @Nullable final CameraView.PreparedListener preparedListener) {
@@ -685,7 +685,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             initMediaRecorder();
             try {
                 mMediaRecorder.prepare();
-                if(preparedListener != null){
+                if (preparedListener != null) {
                     preparedListener.onPrepared(mMediaRecorder);
                 }
             } catch (Exception e) {
@@ -1005,8 +1005,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         return this;
     }
 
-    // -----------------
-    // Additional helper info
+// -----------------
+// Additional helper info
 
     public static class RecordOptions {
         private Integer mAudioSampleRate;
